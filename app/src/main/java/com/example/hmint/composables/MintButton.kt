@@ -33,6 +33,7 @@ import com.example.hmint.MainViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.Objects
 
 @Composable
@@ -55,6 +56,7 @@ fun MintButton(
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
             capturedImageUri = uri
+            mainViewModel.mintCNft(uri, "hMint", viewState.userAddress)
         }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -65,6 +67,13 @@ fun MintButton(
             cameraLauncher.launch(uri)
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Display the toast message if it's not null
+    viewState.mintResponse.let { message ->
+        if(message.isNotEmpty()){
+            Toast.makeText(LocalContext.current, message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -114,7 +123,7 @@ fun MintButton(
 
 fun Context.createImageFile(): File {
     // Create an image file name
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     val imageFileName = "JPEG_" + timeStamp + "_"
     val image = File.createTempFile(
         imageFileName, /* prefix */
